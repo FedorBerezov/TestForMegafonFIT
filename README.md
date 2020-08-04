@@ -26,6 +26,3 @@
 |IMDB    | 8180 nginx  | | | |
 |        | | 3301 tarantool in container  |       |       |
 
-## Запуск тестов
-1. docker-compose -f docker-compose.test.yml up
-2. Результат запуска тестов лежит
