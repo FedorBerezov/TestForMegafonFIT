@@ -1,0 +1,38 @@
+server.port: 8080
+
+spring:
+    rabbitmq:
+        addresses: 192.168.221.62:5672
+        username: guest
+        password: guest
+        template.exchange: amq.direct
+        connection-timeout: 0
+        listener:
+            simple:
+                retry:
+                    enabled: true
+                    initial-interval: 3s
+                    max-attempts: 6
+                    max-interval: 10s
+                    multiplier: 2
+    datasource:
+        driver-class-name: "oracle.jdbc.OracleDriver"
+        url: jdbc:oracle:thin:@192.168.221.62:1521:xe
+        username: SUS_USER
+        password: sus_user
+        hikari:
+            pool-name: "oracle-dbpool"
+            connection-timeout: 2000
+
+sus:
+    rps: 50
+    queue:
+        in: SUS.IN.TEST
+        out: SUS.OUT.TEST
+    service:
+        imdb:
+            url: http://192.168.221.62:8080
+
+
+consul.base-url: http://192.168.221.62:8500
+consul.update-rate-limit-interval: 600000

@@ -1,0 +1,172 @@
+---
+version: '3.4'
+services:
+  java_sus:
+    container_name: sus
+    build:
+      context: .
+      dockerfile: docker/java/Dockerfile.sus
+    image: sus:0.1
+    ports:
+      - "8380:8080"
+    networks:
+      - consul
+      - oracle
+      - rabbitmq
+      - services
+    depends_on:
+      - rabbitmq
+      - consul
+      - oracle
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/prometheus"]
+      interval: 20s
+      timeout: 5s
+      retries: 2
+    restart: always
+    environment:
+      - RABBITMQ_URI=rabbitmq:5672
+      - RABBITMQ_USER=guest
+      - RABBITMQ_PASSWORD=guest
+      - RABBITMQ_exchange=amq.direct
+      - IMDB_URI=http://imdb:8080
+      - CONSUL_BASEURL=http://consul:8500
+      - ORACLE_JDBC_URL=jdbc:oracle:thin:@oracle:1521:xe
+      - ORACLE_USERNAME=SUS_USER
+      - ORACLE_PASSWORD=sus_user
+      - TZ=Europe/Moscow
+
+  java_is:
+    container_name: is
+    build:
+      context: .
+      dockerfile: docker/java/Dockerfile.is
+    image: is:0.1
+    ports:
+      - "8280:8080"
+    networks:
+      - consul
+      - services
+      - oracle
+    depends_on:
+      - consul
+      - oracle
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/prometheus"]
+      interval: 20s
+      timeout: 5s
+      retries: 2
+    restart: always
+    environment:
+      - ORACLE_JDBC_URL=jdbc:oracle:thin:@oracle:1521:xe
+      - ORACLE_USERNAME=IS_USER
+      - ORACLE_PASSWORD=is_user
+      - CONSUL_BASEURL=http://consul:8500
+      - TZ=Europe/Moscow
+
+  consul:
+    container_name: consul
+    image: consul:1.8.0
+    ports:
+      - "8301:8301"
+      - "8500:8500"
+    networks:
+      - consul
+    environment:
+      - CONSUL_BIND_INTERFACE=eth0
+      - TZ=Europe/Moscow
+
+  imdb_nginx:
+    container_name: imdb
+    build:
+      context: ./docker/nginx/
+    image: imdb:0.1
+    ports:
+      - "8180:8080"
+    networks:
+      - services
+      - tarantool
+      - consul
+    depends_on:
+      - imdb_tarantool
+    healthcheck:
+      test: ["CMD", "service", "nginx", "status"]
+      interval: 20s
+      timeout: 2s
+      retries: 2
+    restart: always
+    environment:
+      - TZ=Europe/Moscow
+    volumes:
+      - ./imdb/nginx.conf:/etc/consul-templates/nginx.conf:ro
+
+  imdb_tarantool:
+    container_name: imdb_tarantool
+    build:
+      context: .
+      dockerfile: docker/imdb/Dockerfile
+    image: imdb_tarantool:0.1
+    restart: always
+    networks:
+      - tarantool
+      - consul
+    environment:
+      - IMDB_ISSVC_URL=http://is:8080
+      - IMDB_HTTP_ADDR=0.0.0.0
+      - IMDB_HTTP_PORT=8000
+      - URL_PATH_PREFIX=
+      - TZ=Europe/Moscow
+    volumes:
+      - tarantool_data:/var/lib/tarantool
+
+  rabbitmq:
+    container_name: rabbitmq
+    hostname: my-rabbit
+    build:
+      context: ./docker/rabbitmq/
+      dockerfile: ./Dockerfile
+    image: rabbitmq:local
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - rabbitmq
+    environment:
+      - TZ=Europe/Moscow
+
+  oracle:
+    container_name: oracle
+    build:
+      context: .
+      dockerfile: docker/oracle/Dockerfile
+    image: oracle:local
+    ports:
+      - "1521:1521"
+    networks:
+      - oracle
+    volumes:
+      - oracle_data:/opt/oracle/oradata
+
+  zabbix_appliance:
+    container_name: zabbix_server
+    image: zabbix/zabbix-appliance:alpine-4.4.6
+    ports:
+      - "80:80"
+      - "10050:10050"
+    networks:
+      - zabbix
+    environment:
+      - PHP_TZ=Europe/Moscow
+      - TZ=Europe/Moscow
+
+networks:
+  consul:
+  zabbix:
+  services:
+  tarantool:
+  oracle:
+  rabbitmq:
+
+volumes:
+  oracle_data:
+  tarantool_data:

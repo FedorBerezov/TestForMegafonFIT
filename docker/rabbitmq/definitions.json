@@ -1,0 +1,72 @@
+{
+  "rabbit_version": "3.8.5",
+  "rabbitmq_version": "3.8.5",
+  "product_name": "RabbitMQ",
+  "product_version": "3.8.5",
+  "users": [
+    {
+      "name": "guest",
+      "password_hash": "MTLPhPKWeUaghzHv4tTmNprwPo/hBhARPs8WdVPSLQpI1Xhs",
+      "hashing_algorithm": "rabbit_password_hashing_sha256",
+      "tags": "administrator"
+    }
+  ],
+  "vhosts": [
+    {
+      "name": "/"
+    }
+  ],
+  "permissions": [
+    {
+      "user": "guest",
+      "vhost": "/",
+      "configure": ".*",
+      "write": ".*",
+      "read": ".*"
+    }
+  ],
+  "topic_permissions": [],
+  "parameters": [],
+  "global_parameters": [
+    {
+      "name": "cluster_name",
+      "value": "rabbit@my-rabbit"
+    },
+    {
+      "name": "internal_cluster_id",
+      "value": "rabbitmq-cluster-id-ufuVxCjsfCNq3a57IGm0xg"
+    }
+  ],
+  "policies": [],
+  "queues": [
+    {
+      "name": "SUS.IN",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {
+        "x-queue-type": "classic"
+      }
+    },
+    {
+      "name": "SUS.OUT",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {
+        "x-queue-type": "classic"
+      }
+    }
+  ],
+  "exchanges": [],
+  "bindings": [
+    {
+      "source": "amq.direct",
+      "vhost": "/",
+      "destination": "SUS.IN",
+      "destination_type": "queue",
+      "routing_key": "",
+      "arguments": {}
+    }
+  ]
+}

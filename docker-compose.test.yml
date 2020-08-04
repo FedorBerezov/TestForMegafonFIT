@@ -1,0 +1,16 @@
+---
+version: '3.4'
+services:
+  test_module:
+    container_name: autotest
+    image: maven:3.6.3-openjdk-8
+    command: >
+      sh -c "mvn clean verify -am -pl :autotest -P all-tests || true &&
+             mvn allure:serve"
+    volumes:
+      - ./autotest:/autotest
+#      - ./autotest.sh:/autotest/autotest.sh:ro
+    environment:
+      - TZ=Europe/Moscow
+    working_dir: /autotest
+    

@@ -1,0 +1,57 @@
+server.port: 8080
+
+spring:
+    rabbitmq:
+        addresses: ${RABBITMQ_URI}
+        username: ${RABBITMQ_USER}
+        password: ${RABBITMQ_PASSWORD}
+        template.exchange: ${RABBITMQ_exchange}
+        connection-timeout: 0
+        listener:
+            simple:
+                retry:
+                    enabled: true
+                    initial-interval: 3s
+                    max-attempts: 6
+                    max-interval: 10s
+                    multiplier: 2
+    datasource:
+        driver-class-name: "oracle.jdbc.OracleDriver"
+        url: ${ORACLE_JDBC_URL}
+        username: ${ORACLE_USERNAME}
+        password: ${ORACLE_PASSWORD}
+        hikari:
+            pool-name: "oracle-dbpool"
+            connection-timeout: 2000
+
+sus:
+    rps: 50
+    queue:
+        in: SUS.IN
+        out: SUS.OUT
+    service:
+        imdb:
+            url: ${IMDB_URI}
+
+mybatis:
+    configuration:
+        map-underscore-to-camel-case: true
+
+consul.base-url: ${CONSUL_BASEURL}
+consul.rate-limit-key: "sus/rate/limit/rps"
+consul.update-rate-limit-interval: 60000
+
+logging:
+    level:
+        root: debug
+        ru.megafon.b2b: debug
+
+
+management.endpoints.web.exposure.include: "prometheus"
+
+management:
+    endpoints:
+        web:
+            base-path: "/"
+    server:
+        port: 8080

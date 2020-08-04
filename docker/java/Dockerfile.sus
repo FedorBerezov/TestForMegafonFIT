@@ -1,0 +1,13 @@
+FROM maven:3.6.3-openjdk-8 as BUILD
+COPY sus /usr/src/myapp/sus
+COPY is /usr/src/myapp/is
+COPY common /usr/src/myapp/common
+COPY pom.xml /usr/src/myapp
+COPY autotest /usr/src/myapp/autotest
+RUN mvn -f /usr/src/myapp/pom.xml clean package -am -pl :sus
+
+FROM openjdk:8-jre
+WORKDIR /opt/
+COPY --from=BUILD /usr/src/myapp/sus/target/sus.jar .
+EXPOSE 8080
+CMD ["java","-Xms512m","-Xmx1g","-jar","sus.jar"]

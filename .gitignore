@@ -1,0 +1,12 @@
+## Directory-based project format:
+.idea/
+*.iml
+
+# Maven
+target/
+=======
+
+*.rpm
+autotest/target
+*.log
+.allure

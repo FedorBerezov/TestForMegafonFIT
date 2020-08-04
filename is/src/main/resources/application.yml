@@ -1,0 +1,29 @@
+server.port: 8080
+
+spring:
+  thymeleaf.cache: false
+  main.show-banner: false
+  datasource:
+    url: ${ORACLE_JDBC_URL} #-DORACLE_JDBC_URL="jdbc:oracle:thin:@192.168.221.62:1521:xe"
+    driver-class-name: "oracle.jdbc.OracleDriver"
+    username: ${ORACLE_USERNAME} #-DORACLE_USERNAME=IS_USER
+    password: ${ORACLE_PASSWORD} #-DORACLE_PASSWORD=is_user
+    hikari:
+      connection-timeout: 2000
+      pool-name: "oracle-dbpool"
+
+management.endpoints.web.exposure.include: "prometheus"
+
+management:
+  endpoints:
+    web:
+      base-path: "/"
+  server:
+    port: 8080
+
+consul.base-url: ${CONSUL_BASEURL} #-DCONSUL_BASEURL="http://192.168.221.62:8500"
+consul.rate-limit-key: "is/rate/limit/rps"
+consul.update-rate-limit-interval: 5000
+
+is:
+  rps: 50
